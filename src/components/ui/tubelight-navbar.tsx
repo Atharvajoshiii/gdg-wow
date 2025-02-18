@@ -1,49 +1,61 @@
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
-import { LucideIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface NavItem {
-  name: string
-  url: string
-  icon: LucideIcon
+  name: string;
+  url: string;
+  icon: LucideIcon;
 }
 
 interface NavBarProps {
-  items: NavItem[]
-  className?: string
+  items: NavItem[];
+  className?: string;
 }
 
 export function NavBar({ items, className }: NavBarProps) {
-  const [activeTab, setActiveTab] = useState(items[0].name)
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  const [activeTab, setActiveTab] = useState<string>(items[0]?.name || "");
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+      setWindowWidth(window.innerWidth);
+    };
 
-    handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    const debounceResize = () => {
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+      resizeTimeoutRef.current = setTimeout(handleResize, 100);
+    };
+
+    window.addEventListener("resize", debounceResize);
+    return () => {
+      window.removeEventListener("resize", debounceResize);
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+    };
+  }, []);
+
+  const isMobile = windowWidth < 640; // Small devices
+  const isTablet = windowWidth >= 640 && windowWidth < 1024; // Tablets
+  const isDesktop = windowWidth >= 1024; // Large screens
 
   return (
     <div
       className={cn(
-        "fixed bottom-0 sm:top-0 left-1/2 -translate-x-1/2 z-50 mb-6 sm:pt-6",
+        "fixed bottom-0 sm:top-0 left-1/2 -translate-x-1/2 z-50 mb-6 sm:pt-4",
         className
       )}
     >
       <div
         className={cn(
-          "flex items-center gap-3 bg-background/5 border border-border backdrop-blur-lg py-1 px-1 rounded-full shadow-lg",
-          isMobile ? "px-2 py-1 gap-2" : "px-4 py-2 gap-3"
+          "flex items-center gap-2 bg-background/5 border border-border backdrop-blur-lg rounded-full shadow-lg",
+          isMobile ? "p-2" : isTablet ? "p-3" : "p-4"
         )}
       >
         {items.map((item) => {
-          const Icon = item.icon
-          const isActive = activeTab === item.name
+          const Icon = item.icon;
+          const isActive = activeTab === item.name;
 
           return (
             <a
@@ -51,16 +63,25 @@ export function NavBar({ items, className }: NavBarProps) {
               href={item.url}
               onClick={() => setActiveTab(item.name)}
               className={cn(
-                "relative cursor-pointer text-sm font-semibold rounded-full transition-colors",
+                "relative cursor-pointer text-sm font-semibold rounded-full transition-colors flex items-center",
                 "text-foreground/80 hover:text-primary",
                 isActive && "bg-muted text-primary",
-                isMobile ? "px-3 py-2" : "px-6 py-2"
+                isMobile ? "px-3 py-2" : isTablet ? "px-4 py-2" : "px-6 py-2"
               )}
             >
               {isMobile ? (
                 <Icon size={20} strokeWidth={2.5} />
               ) : (
-                <span>{item.name}</span>
+                <>
+                  {isTablet ? (
+                    <span className="flex items-center gap-2">
+                      <Icon size={18} strokeWidth={2} />
+                      <span>{item.name}</span>
+                    </span>
+                  ) : (
+                    <span>{item.name}</span>
+                  )}
+                </>
               )}
               {isActive && (
                 <motion.div
@@ -81,9 +102,9 @@ export function NavBar({ items, className }: NavBarProps) {
                 </motion.div>
               )}
             </a>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }

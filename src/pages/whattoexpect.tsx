@@ -1,5 +1,5 @@
 import { DefaultDemo } from "@/components/text";
-import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
+import { BentoGrid } from "@/components/ui/bento-grid";
 import { motion } from 'framer-motion';
 import {
   IconClipboardCopy,

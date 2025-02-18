@@ -1,7 +1,7 @@
 import { AnimatedCardDemo } from "@/components/animatedcarddemo";
 import { DefaultDemo } from "@/components/text";
 import { motion } from 'framer-motion';
-import { Sparkles, Star } from 'lucide-react';
+import {Star } from 'lucide-react';
 import { useState } from 'react';
 
 const FloatingParticles = () => (

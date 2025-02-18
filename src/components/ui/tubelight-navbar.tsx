@@ -38,7 +38,7 @@ export function NavBar({ items, className }: NavBarProps) {
 
   const isMobile = windowWidth < 640; // Small devices
   const isTablet = windowWidth >= 640 && windowWidth < 1024; // Tablets
-  const isDesktop = windowWidth >= 1024; // Large screens
+  
 
   return (
     <div
